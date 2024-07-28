@@ -5,15 +5,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.DialogWindow
+import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberDialogState
+import desktopapppractice.composeapp.generated.resources.Res
+import desktopapppractice.composeapp.generated.resources.compose_multiplatform
+import org.jetbrains.compose.resources.painterResource
 
 val commandExecutor = CommandExecutor()
 
 fun main() = application {
+    var isVisible by remember { mutableStateOf(true) }
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = { isVisible = false },
+        visible = isVisible,
         title = "DesktopAppPractice",
     ) {
         var isDialogOpen by remember { mutableStateOf(false) }
@@ -32,6 +38,17 @@ fun main() = application {
             ) {
                 Text("Dialog Content")
             }
+        }
+
+        if (!isVisible) {
+            Tray(
+                painterResource(Res.drawable.compose_multiplatform),
+                tooltip = "DesktopAppPractice",
+                onAction = { isVisible = true },
+                menu = {
+                    Item("Exit", onClick = ::exitApplication)
+                }
+            )
         }
 
         App(
