@@ -20,6 +20,8 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kommand)
+            // https://mvnrepository.com/artifact/com.github.kwhat/jnativehook
+            implementation("com.github.kwhat:jnativehook:2.2.2")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
