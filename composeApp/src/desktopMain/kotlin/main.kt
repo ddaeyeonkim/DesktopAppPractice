@@ -75,8 +75,8 @@ fun main() = singleWindowApplication(
         }
     }
 ) {
-    GlobalScreen.registerNativeHook()
-    GlobalScreen.addNativeKeyListener(GlobalKeyListener())
+    // GlobalScreen.registerNativeHook()
+//    GlobalScreen.addNativeKeyListener(GlobalKeyListener())
 
     if (cleared) {
         Text("Cleared")
