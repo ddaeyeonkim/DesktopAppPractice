@@ -75,27 +75,28 @@ fun main() = singleWindowApplication(
         }
     }
 ) {
+    // region GlobalKeyEvent
     // GlobalScreen.registerNativeHook()
-//    GlobalScreen.addNativeKeyListener(GlobalKeyListener())
+    // GlobalScreen.addNativeKeyListener(GlobalKeyListener())
 
     if (cleared) {
         Text("Cleared")
     }
+    // endregion
 
-    var isVisible by remember { mutableStateOf(true) }
+    // region Window (SingleWindowApplication에서는 사용 불가)
 //    Window(
 //        onCloseRequest = { isVisible = false },
 //        visible = isVisible,
 //        title = "DesktopAppPractice",
 //    ) {
-    var isDialogOpen by remember { mutableStateOf(false) }
+    // endregion
 
-    var commandResult by remember { mutableStateOf("") }
-
+    // region Dialog
 //    Button(onClick = { isDialogOpen = true }) {
 //        Text("Open Dialog")
 //    }
-
+    var isDialogOpen by remember { mutableStateOf(false) }
     if (isDialogOpen) {
         // TODO: 생각했던 dialog가 아닌데..
         DialogWindow(
@@ -105,7 +106,10 @@ fun main() = singleWindowApplication(
             Text("Dialog Content")
         }
     }
+    // endregion
 
+    // region Tray (SingleWindowApplication에서는 사용 불가)
+    var isVisible by remember { mutableStateOf(true) }
     if (!isVisible) {
 //            Tray(
 //                painterResource(Res.drawable.compose_multiplatform),
@@ -116,6 +120,9 @@ fun main() = singleWindowApplication(
 //                }
 //            )
     }
+    // endregion
+
+    var commandResult by remember { mutableStateOf("") }
 
     App(
         commandResult = commandResult,
