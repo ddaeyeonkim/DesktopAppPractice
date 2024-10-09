@@ -1,8 +1,15 @@
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -12,10 +19,16 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.rememberDialogState
 import androidx.compose.ui.window.singleWindowApplication
-import com.github.kwhat.jnativehook.GlobalScreen
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
+import com.multiplatform.webview.web.WebView
+import com.multiplatform.webview.web.rememberWebViewState
+import dev.datlag.kcef.KCEF
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.awt.KeyboardFocusManager
+import java.io.File
+import kotlin.math.max
 
 val commandExecutor = CommandExecutor()
 
@@ -124,11 +137,85 @@ fun main() = singleWindowApplication(
 
     var commandResult by remember { mutableStateOf("") }
 
-    App(
-        commandResult = commandResult,
-        onCommandRunClick = {
-            commandResult = commandExecutor.execute("ls")
+    // region webview init
+    var restartRequired by remember { mutableStateOf(false) }
+    var downloading by remember { mutableStateOf(0F) }
+    var initialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            KCEF.init(builder = {
+                installDir(File("kcef-bundle"))
+                progress {
+                    onDownloading {
+                        downloading = max(it, 0F)
+                    }
+                    onInitialized {
+                        initialized = true
+                    }
+                }
+                settings {
+                    cachePath = File("cache").absolutePath
+                }
+            }, onError = {
+                it?.printStackTrace()
+            }, onRestartRequired = {
+                restartRequired = true
+            })
         }
-    )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            KCEF.disposeBlocking()
+        }
+    }
+    // endregion
+
+    if (restartRequired) {
+        Text(text = "Restart required.")
+    } else {
+        if (initialized) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                App(
+                    commandResult = commandResult,
+                    onCommandRunClick = {
+                        commandResult = commandExecutor.execute("ls")
+                    }
+                )
+                WebViewSample()
+            }
+        } else {
+            Text(text = "Downloading $downloading%")
+        }
+    }
 //    }
+}
+
+@Composable
+internal fun WebViewSample() {
+    MaterialTheme {
+        val webViewState =
+            rememberWebViewState("https://github.com/KevinnZou/compose-webview-multiplatform")
+        webViewState.webSettings.apply {
+            isJavaScriptEnabled = true
+            customUserAgentString =
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1) AppleWebKit/625.20 (KHTML, like Gecko) Version/14.3.43 Safari/625.20"
+            androidWebSettings.apply {
+                isAlgorithmicDarkeningAllowed = true
+                safeBrowsingEnabled = true
+            }
+        }
+        Column(Modifier.fillMaxSize()) {
+            val text =
+                webViewState.let {
+                    "${it.pageTitle ?: ""} ${it.loadingState} ${it.lastLoadedUrl ?: ""}"
+                }
+            Text(text)
+            WebView(
+                state = webViewState,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
 }
