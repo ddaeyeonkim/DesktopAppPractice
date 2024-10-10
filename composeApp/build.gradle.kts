@@ -24,9 +24,18 @@ kotlin {
             implementation("com.github.kwhat:jnativehook:2.2.2")
             // use api since the desktop app need to access the Cef to initialize it.
             api("io.github.kevinnzou:compose-webview-multiplatform:1.9.20")
+
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
         }
         desktopMain.dependencies {
+            implementation(compose.desktop.common)
             implementation(compose.desktop.currentOs)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
+
+            // java.lang.NoClassDefFoundError: androidx/collection/MutableScatterSet
+            //	at androidx.compose.runtime.Recomposer.<init>(Recomposer.kt:217)
+            val collection_version = "1.4.4"
+            implementation("androidx.collection:collection:$collection_version")
         }
     }
 }

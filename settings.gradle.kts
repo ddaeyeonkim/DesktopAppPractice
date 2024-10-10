@@ -12,6 +12,8 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
@@ -26,6 +28,9 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven("https://jogamp.org/deployment/maven")
+
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
