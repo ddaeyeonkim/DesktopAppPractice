@@ -179,7 +179,8 @@ fun main() = singleWindowApplication(
                         commandResult = commandExecutor.execute("ls")
                     }
                 )
-                EditorWebView()
+//                KCEFEditorWebView()
+                KMMEditorWebView()
             }
         } else {
             Text(text = "Downloading $downloading%")
